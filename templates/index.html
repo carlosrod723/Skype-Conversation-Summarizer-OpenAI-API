@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skype Conversation Summary</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container conversation-summary-container">
+        <h1 class="heading">Skype Conversation Summary</h1>
+        
+        <!-- Login Section -->
+        <div id="credentials-form" class="setup-section">
+            <form id="api-credentials">
+                <div class="form-group">
+                    <label for="openai-api-key">OpenAI API Key</label>
+                    <input type="text" id="openai-api-key" placeholder="Enter your OpenAI API key (sk-...)" required>
+                </div>
+                <div class="form-group">
+                    <label for="skype-username">Skype Username or Email</label>
+                    <input type="text" id="skype-username" placeholder="Enter your Skype username or email" required>
+                </div>
+                <div class="form-group">
+                    <label for="skype-password">Skype Password</label>
+                    <input type="password" id="skype-password" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn connect-btn">Connect to Skype</button>
+            </form>
+        </div>
+
+        <!-- Conversations Section -->
+        <div id="conversations-section" class="hidden">
+            <div class="nav-buttons">
+                <button class="btn back-btn">← Back to Login</button>
+                <div class="action-buttons">
+                    <button class="btn refresh-btn">Refresh</button>
+                </div>
+            </div>
+            <!-- Move error/success container here -->
+            <div id="error-container" class="error-message hidden"></div>
+            <div class="conversations-list">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="loading-overlay hidden">
+            <div class="spinner"></div>
+        </div>
+
+        <!-- Error Container -->
+        <div id="error-container" class="error-message hidden"></div>
+    </div>
+    <script src="/static/main.js"></script>
+</body>
+</html>
