@@ -94,6 +94,8 @@ async function loadConversations() {
     try {
         const response = await fetch(`${API_BASE_URL}/api/conversations`, {
             method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
             }
         });
         
@@ -143,10 +145,6 @@ async function refreshConversations() {
             }
         });
         
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
         const data = await response.json();
         if (data.status === "success") {
             renderConversations(data.data);
@@ -156,7 +154,7 @@ async function refreshConversations() {
         }
     } catch (error) {
         console.error('Refresh error:', error);
-        showError('Error refreshing conversations. ' + error.message);
+        showError('Error refreshing conversations. Please try again in a few seconds.');
     } finally {
         showLoading(false);
     }
