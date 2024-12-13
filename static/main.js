@@ -1,5 +1,5 @@
 // Configuration
-const API_BASE_URL = 'http://localhost:5001';
+const API_BASE_URL = '/api';
 const MIN_TIME_BETWEEN_ATTEMPTS = 10000; // 10 seconds
 let lastSubmitTime = 0;
 
