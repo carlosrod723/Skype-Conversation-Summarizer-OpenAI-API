@@ -1,4 +1,5 @@
 import os
+import time
 from datetime import datetime, timedelta
 from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
@@ -8,18 +9,7 @@ from dotenv import load_dotenv
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app, resources={
-    r"/*": {
-        "origins": [
-            "http://127.0.0.1:5001",  # Development
-            "http://localhost:5001",   # Alternative local development
-            "https://skype-summarizer-b5cd2e2f111d.herokuapp.com"  # Production
-        ],
-        "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization"],
-        "supports_credentials": True
-    }
-})
+CORS(app)  # Add CORS back
 
 # Load environment variables
 load_dotenv()
@@ -29,6 +19,8 @@ class SkypeManager:
         self.sk = None
         self.username = None
         self.password = None
+        self.last_refresh = 0
+        self.MIN_REFRESH_INTERVAL = 5 
         
     def authenticate(self, username, password):
         """Authenticate with Skype"""
@@ -42,9 +34,15 @@ class SkypeManager:
 
     def refresh_connection(self):
         """Refresh Skype connection using stored credentials"""
+        current_time = time.time()
+        if current_time - self.last_refresh < self.MIN_REFRESH_INTERVAL:
+            # Too soon to refresh
+            return True
+            
         if self.username and self.password:
             try:
                 self.sk = Skype(self.username, self.password)
+                self.last_refresh = current_time
                 return True
             except SkypeAuthException:
                 return False
@@ -73,18 +71,23 @@ class SkypeManager:
                         user = chat.user
                         user_info = str(user.name) if hasattr(user, 'name') else str(user)
 
-                    # Get messages
-                    recent_messages = chat.getMsgs()
-                    for msg in recent_messages:
-                        msg_time = msg.time if hasattr(msg, 'time') else None
-                        if msg_time and msg_time >= time_limit:
-                            messages.append({
-                                'id': msg.id if hasattr(msg, 'id') else 'unknown',
-                                'content': msg.content if hasattr(msg, 'content') else '',
-                                'time': msg_time.isoformat() if msg_time else '',
-                                'sender': msg.userId if hasattr(msg, 'userId') else 'unknown'
-                            })
+                    try:
+                        # Get messages and skip if there's an error with this specific chat
+                        recent_messages = chat.getMsgs()
+                        for msg in recent_messages:
+                            msg_time = msg.time if hasattr(msg, 'time') else None
+                            if msg_time and msg_time >= time_limit:
+                                messages.append({
+                                    'id': msg.id if hasattr(msg, 'id') else 'unknown',
+                                    'content': msg.content if hasattr(msg, 'content') else '',
+                                    'time': msg_time.isoformat() if msg_time else '',
+                                    'sender': msg.userId if hasattr(msg, 'userId') else 'unknown'
+                                })
+                    except Exception as msg_error:
+                        app.logger.warning(f"Skipping chat {chat_id} due to message fetch error: {str(msg_error)}")
+                        continue  # Skip this chat and continue with others
 
+                    # Only add conversations that have valid messages
                     if messages:
                         conversations.append({
                             'id': chat_id,
@@ -92,11 +95,12 @@ class SkypeManager:
                             'messages': messages
                         })
 
-                except Exception as e:
-                    app.logger.error(f"Error processing chat {chat_id}: {str(e)}")
-                    continue
+                except Exception as chat_error:
+                    app.logger.warning(f"Skipping chat {chat_id}: {str(chat_error)}")
+                    continue  # Skip problematic chats
 
             return conversations
+
         except Exception as e:
             app.logger.error(f"Error in get_recent_conversations: {str(e)}")
             raise
@@ -228,4 +232,4 @@ def get_conversations():
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5001))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    app.run(host='0.0.0.0', port=port, debug=True)
