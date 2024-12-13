@@ -94,8 +94,6 @@ async function loadConversations() {
     try {
         const response = await fetch(`${API_BASE_URL}/api/conversations`, {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
             }
         });
         
