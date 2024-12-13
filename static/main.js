@@ -1,5 +1,5 @@
 // Configuration
-const API_BASE_URL = '/api';
+const API_BASE_URL = 'https://skype-summarizer-b5cd2e2f111d.herokuapp.com';
 const MIN_TIME_BETWEEN_ATTEMPTS = 10000; // 10 seconds
 let lastSubmitTime = 0;
 
