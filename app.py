@@ -8,7 +8,18 @@ from dotenv import load_dotenv
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app)  # Add CORS back
+CORS(app, resources={
+    r"/*": {
+        "origins": [
+            "http://127.0.0.1:5001",  # Development
+            "http://localhost:5001",   # Alternative local development
+            "https://skype-summarizer-b5cd2e2f111d.herokuapp.com"  # Production
+        ],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"],
+        "supports_credentials": True
+    }
+})
 
 # Load environment variables
 load_dotenv()
