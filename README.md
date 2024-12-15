@@ -8,7 +8,7 @@ A web application that connects to Skype and uses OpenAI's GPT-3.5 to generate c
 
 This web application allows users to automatically generate summaries of their recent Skype conversations using artificial intelligence. The app fetches Skype conversations from the past 5 days and uses OpenAI's GPT-3.5 model to create clear, concise summaries of each conversation.
 
-![Conversation Summaries](images/skype_summaries.png)
+![Conversation Summaries](images/skype-summaries.png)
 
 ## Features
 
